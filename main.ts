@@ -1,19 +1,26 @@
-// One-Line Laugh-Off v5 — entry for make.fun bounty
-// https://make.fun/bounty/u-zkhiel-one-line-laugh-off-714618ae
-// Writes the single one-line joke to entry.txt in the output dir.
-const fs = require("node:fs");
-const path = require("node:path");
+// One Line Laugh-Off — v6 entry
+// Bounty: u-zkhiel-one-line-laugh-off-714618ae (generic, NOT office)
+// Gate: one UTF-8 text, 1-200 chars, single line, one joke.
 
-const JOKE = "My kids stopped calling shotgun the day I explained what a crumple zone is.";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
-// Gate: the answer must be 1-200 characters long (bounty rule).
-// The joke is written with no trailing newline so entry.txt is byte-identical.
-if (JOKE.length < 1 || JOKE.length > 200) {
-  throw new Error("Joke must be 1-200 characters, got " + JOKE.length);
+const ENTRY =
+  "I bought a chess set at a divorce sale. The pawns came in a separate box marked EVERY OTHER WEEKEND.";
+
+const outDir =
+  process.env.MAKEFUN_OUTPUT_DIR || process.env.MAKEFUN_OUTPUT || "/output";
+
+mkdirSync(outDir, { recursive: true });
+const outPath = join(outDir, "entry.txt");
+writeFileSync(outPath, ENTRY, "utf8");
+
+// Self-check: read back from the output dir and verify byte-exact.
+const back = readFileSync(outPath, "utf8");
+if (back !== ENTRY) {
+  throw new Error("self-check failed: entry.txt does not match ENTRY");
 }
-
-const outDir = process.env.MAKEFUN_OUTPUT_DIR || process.env.MAKEFUN_OUTPUT || "/output";
-fs.mkdirSync(outDir, { recursive: true });
-const outFile = path.join(outDir, "entry.txt");
-fs.writeFileSync(outFile, JOKE, "utf8");
-console.log("Wrote " + JOKE.length + "-character joke to " + outFile);
+if (back.length !== 100 || back.endsWith("\n")) {
+  throw new Error("self-check failed: entry must be exactly 100 chars, no trailing newline");
+}
+console.log("Wrote entry.txt (100 chars, byte-exact).");
